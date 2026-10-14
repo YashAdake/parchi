@@ -1,0 +1,27 @@
+sku,name,group,size,unit,price,in_stock,aliases
+atta-loose,Wheat Atta (loose),atta,,kg,42,yes,atta;aata;gehu atta;gehun atta;kanik;गेहूं आटा;आटा;कणिक
+atta-aashirvaad-5kg,Aashirvaad Atta 5 kg,,,pack,265,yes,aashirvaad;ashirwad atta;aashirvaad atta
+rice-kolam,Kolam Rice,rice,,kg,60,yes,rice;chawal;chaval;tandul;तांदूळ;चावल
+toor-dal,Toor Dal,dal,,kg,160,yes,toor dal;tur dal;tuar dal;arhar dal;turdal;तूर डाळ;अरहर दाल
+sugar,Sugar,,,kg,45,yes,sugar;chini;cheeni;sakhar;साखर;चीनी
+salt-tata-1kg,Tata Salt 1 kg,,,pack,28,yes,salt;namak;mith;meeth;मीठ;नमक
+oil-sunflower-1l,Fortune Sunflower Oil 1 L,,,pack,155,yes,oil;tel;sunflower oil;fortune;तेल
+butter-amul-100g,Amul Butter 100 g,amul butter,small,pack,58,yes,amul butter;butter;makhan;loni;लोणी;मक्खन
+butter-amul-500g,Amul Butter 500 g,amul butter,big,pack,285,yes,amul butter;butter;makhan;loni
+milk-amul-500ml,Amul Taaza Milk 500 ml,milk,small,pack,28,yes,milk;doodh;dudh;amul taaza;दूध
+milk-amul-1l,Amul Taaza Milk 1 L,milk,big,pack,56,yes,milk;doodh;dudh;amul taaza;दूध
+eggs,Eggs,,,pc,7,yes,eggs;egg;ande;anda;andi;अंडे;अंडी
+maggi-70g,Maggi Noodles 70 g,maggi,small,pack,14,yes,maggi;maggie;noodles;मॅगी
+maggi-280g,Maggi Noodles 280 g (4-pack),maggi,big,pack,56,yes,maggi;maggie;noodles
+parle-g-250g,Parle-G 250 g,,,pack,25,yes,parle;parle g;parle-g;biscuit;पारले
+bread,Bread,,,pack,45,yes,bread;double roti;ब्रेड
+pav-6,Pav (6 pcs),,,pack,30,yes,pav;pao;laadi pav;पाव
+dahi-400g,Amul Dahi 400 g,,,pack,35,yes,dahi;curd;दही
+paneer-200g,Paneer 200 g,,,pack,90,no,paneer;पनीर
+tea-tata-250g,Tata Tea 250 g,,,pack,140,yes,tea;chai patti;chaha;chaha powder;चहा;चाय पत्ती
+onion,Onion,,,kg,40,yes,onion;kanda;pyaz;pyaaz;कांदा;प्याज
+potato,Potato,,,kg,35,yes,potato;aloo;alu;batata;बटाटा;आलू
+tomato,Tomato,,,kg,30,yes,tomato;tamatar;टोमॅटो;टमाटर
+jeera-100g,Jeera 100 g,,,pack,45,yes,jeera;zeera;jira;cumin;जिरे;जीरा
+poha,Poha,,,kg,70,yes,poha;pohe;पोहे;पोहा
+coriander,Coriander (bunch),,,pc,10,yes,coriander;kothimbir;dhaniya;कोथिंबीर;धनिया

@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Parchi</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E7A5A'/%3E%3Cpath d='M10 7h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z' fill='%23fff'/%3E%3Cpath d='M13 12h6M13 16h6M13 20h3' stroke='%230E7A5A' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg:#F5F4EF; --surface:#FFFFFF; --surface-2:#FAF9F5; --sunken:#F0EEE7; --border:#E6E2D8; --border-strong:#D6D1C4;
+  --ink:#14171C; --ink-2:#4A4F58; --ink-3:#868B93;
+  --brand:#0E7A5A; --brand-hover:#0B6649; --brand-ink:#0A5C44; --brand-soft:#E2F2EA; --brand-ring:rgba(14,122,90,.22);
+  --accent:#E09A2D; --accent-soft:#FCF0DA;
+  --ok:#1F8A5B; --ok-soft:#E4F4EB; --warn:#B26B00; --warn-soft:#FDF1D8; --bad:#C0392B; --bad-soft:#FBE7E3; --info:#2C6BB3;
+  --shadow-sm:0 1px 2px rgba(20,23,28,.05); --shadow:0 1px 2px rgba(20,23,28,.04), 0 6px 20px rgba(20,23,28,.06);
+  --shadow-pop:0 12px 40px rgba(20,23,28,.18);
+  --r:12px; --r-sm:8px;
+  --font: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Noto Sans Devanagari", "Nirmala UI", sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#0E1113; --surface:#161A1D; --surface-2:#1B2024; --sunken:#121518; --border:#262C31; --border-strong:#343B41;
+    --ink:#ECEEF0; --ink-2:#B5BBC1; --ink-3:#7C838A;
+    --brand:#2BB585; --brand-hover:#3CC795; --brand-ink:#7FE0BC; --brand-soft:#14352A; --brand-ring:rgba(43,181,133,.3);
+    --accent:#F0B04D; --accent-soft:#3A2C14;
+    --ok:#3CC08A; --ok-soft:#133126; --warn:#E6A23C; --warn-soft:#3A2A10; --bad:#F06B5B; --bad-soft:#3B1915; --info:#6CA7EA;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); --shadow-pop:0 16px 48px rgba(0,0,0,.5);
+  }
+}
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+html, body { margin:0; height:100%; }
+body { font:14.5px/1.5 var(--font); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+button, input, select, textarea { font:inherit; color:inherit; }
+button { cursor:pointer; }
+:focus-visible { outline:2px solid var(--brand); outline-offset:2px; border-radius:6px; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+svg.i { width:18px; height:18px; flex:none; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* ---------- shell ---------- */
+.app { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+.sidebar { position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:4px; padding:18px 14px;
+  background:var(--surface); border-right:1px solid var(--border); }
+.brand { display:flex; align-items:center; gap:10px; padding:4px 8px 18px; }
+.brand-mark { width:34px; height:34px; border-radius:10px; background:var(--brand); display:grid; place-items:center; color:#fff; box-shadow:var(--shadow-sm); }
+.brand-name { font-weight:700; font-size:17px; letter-spacing:-.01em; }
+.brand-tag { font-size:12px; color:var(--ink-3); margin-top:-2px; }
+.nav-btn { display:flex; align-items:center; gap:10px; width:100%; padding:9px 10px; border:0; border-radius:var(--r-sm);
+  background:none; color:var(--ink-2); font-weight:500; text-align:left; }
+.nav-btn:hover { background:var(--sunken); color:var(--ink); }
+.nav-btn[aria-current="page"] { background:var(--brand-soft); color:var(--brand-ink); }
+.nav-btn .count { margin-left:auto; font-size:12px; background:var(--accent-soft); color:var(--warn); padding:1px 7px; border-radius:999px; font-weight:600; }
+.side-foot { margin-top:auto; display:flex; flex-direction:column; gap:10px; }
+.model-card { border:1px solid var(--border); border-radius:var(--r); padding:12px; background:var(--surface-2); }
+.model-row { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none; }
+.dot.ok { background:var(--ok); box-shadow:0 0 0 3px var(--ok-soft); }
+.dot.warn { background:var(--warn); box-shadow:0 0 0 3px var(--warn-soft); animation:pulse 1.4s infinite; }
+.dot.bad { background:var(--bad); box-shadow:0 0 0 3px var(--bad-soft); }
+@keyframes pulse { 50% { opacity:.4; } }
+.model-sub { font-size:12px; color:var(--ink-3); margin-top:4px; }
+.privacy { display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--ink-3); padding:0 4px; }
+
+.main { min-width:0; padding:24px 32px 48px; }
+.topbar { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+.topbar h1 { margin:0; font-size:24px; letter-spacing:-.02em; }
+.topbar p { margin:2px 0 0; color:var(--ink-3); }
+.page { display:none; } .page.on { display:block; animation:rise .18s ease-out; }
+@keyframes rise { from { transform:translateY(4px); } }
+@keyframes fade { from { opacity:0; transform:translateY(4px); } }
+
+/* ---------- primitives ---------- */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); }
+.card-h { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.card-h h2 { margin:0; font-size:15px; font-weight:650; }
+.card-b { padding:16px; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:38px; padding:0 14px; border-radius:var(--r-sm);
+  border:1px solid var(--border-strong); background:var(--surface); color:var(--ink); font-weight:550; white-space:nowrap; text-decoration:none; }
+.btn:hover { background:var(--sunken); }
+.btn.primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+.btn.primary:hover { background:var(--brand-hover); }
+.btn.ghost { border-color:transparent; background:none; color:var(--ink-2); }
+.btn.ghost:hover { background:var(--sunken); color:var(--ink); }
+.btn.sm { height:32px; padding:0 10px; font-size:13px; }
+.btn.lg { height:46px; padding:0 18px; font-size:15px; width:100%; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
+.btn .kbd { font:500 11px var(--mono); opacity:.75; border:1px solid rgba(255,255,255,.35); border-radius:4px; padding:0 4px; }
+.icon-btn { width:32px; height:32px; display:inline-grid; place-items:center; border-radius:var(--r-sm); border:0; background:none; color:var(--ink-3); }
+.icon-btn:hover { background:var(--sunken); color:var(--ink); }
+.field { display:flex; flex-direction:column; gap:6px; }
+.field label, .lbl { font-size:12.5px; font-weight:600; color:var(--ink-2); }
+.hint { font-size:12px; color:var(--ink-3); }
+.input, textarea.input, select.input { width:100%; height:38px; padding:0 11px; border:1px solid var(--border-strong); border-radius:var(--r-sm); background:var(--surface); transition:border-color .15s, box-shadow .15s; }
+textarea.input { height:auto; min-height:120px; padding:12px; resize:vertical; line-height:1.55; font-size:15px; }
+.input:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 4px var(--brand-ring); }
+.input.invalid { border-color:var(--bad); }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.grow { flex:1; min-width:0; }
+.muted { color:var(--ink-3); }
+.pill { display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap; }
+.pill.ok { background:var(--ok-soft); color:var(--ok); } .pill.check { background:var(--warn-soft); color:var(--warn); }
+.pill.unknown, .pill.out { background:var(--bad-soft); color:var(--bad); } .pill.skip { background:var(--sunken); color:var(--ink-3); }
+.pill.neutral { background:var(--sunken); color:var(--ink-2); }
+.chip { display:inline-flex; align-items:center; height:30px; padding:0 12px; border-radius:999px; border:1px solid var(--border-strong);
+  background:var(--surface); color:var(--ink-2); font-size:13px; font-weight:500; }
+.chip:hover { border-color:var(--brand); color:var(--brand-ink); }
+.chip[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:var(--surface); }
+.switch { position:relative; display:inline-block; width:36px; height:20px; flex:none; vertical-align:middle; }
+.stock { display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px; font-weight:600; white-space:nowrap; }
+.stock.on { color:var(--ok); } .stock.off { color:var(--bad); }
+.switch input { opacity:0; width:100%; height:100%; margin:0; position:absolute; cursor:pointer; }
+.switch span { position:absolute; inset:0; border-radius:999px; background:var(--border-strong); transition:.15s; pointer-events:none; }
+.switch span::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.15s; box-shadow:var(--shadow-sm); }
+.switch input:checked + span { background:var(--brand); } .switch input:checked + span::after { transform:translateX(16px); }
+.switch input:focus-visible + span { outline:2px solid var(--brand); outline-offset:2px; }
+
+/* ---------- order page ---------- */
+.steps { display:flex; gap:6px; align-items:center; }
+.step { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--ink-3); }
+.step b { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; background:var(--sunken); color:var(--ink-3); }
+.step.on { color:var(--ink); } .step.on b { background:var(--brand); color:#fff; }
+.step.done b { background:var(--brand-soft); color:var(--brand-ink); }
+.step-sep { width:24px; height:1px; background:var(--border-strong); }
+.order-grid { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:20px; align-items:start; }
+.stack { display:flex; flex-direction:column; gap:20px; min-width:0; }
+.sticky { position:sticky; top:20px; }
+.samples { display:flex; gap:8px; flex-wrap:wrap; }
+.samples .chip { max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+
+.summary-bar { display:flex; gap:8px; flex-wrap:wrap; margin-left:auto; }
+.items { display:flex; flex-direction:column; }
+.item { display:grid; grid-template-columns:4px minmax(0,1fr) minmax(0,1.6fr) 132px 78px 32px; gap:12px; align-items:center;
+  padding:12px 16px; border-bottom:1px solid var(--border); }
+.item:last-child { border-bottom:0; }
+.item.skip { opacity:.55; }
+.item .bar { width:4px; height:100%; min-height:34px; border-radius:4px; background:var(--border-strong); }
+.item.ok .bar { background:var(--ok); } .item.check .bar { background:var(--warn); } .item.unknown .bar, .item.out .bar { background:var(--bad); }
+.wrote { font-size:14px; } .wrote q { quotes:"“" "”"; color:var(--ink); }
+.wrote .note { display:block; font-size:12px; margin-top:3px; }
+.item.check .note { color:var(--warn); } .item.unknown .note, .item.out .note { color:var(--bad); } .item.ok .note { color:var(--ink-3); }
+.choices { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
+.choices .chip { height:26px; padding:0 10px; font-size:12px; }
+.line-total { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+.line-total small { display:block; font-weight:400; color:var(--ink-3); font-size:11.5px; }
+.items-foot { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-top:1px solid var(--border); background:var(--surface-2); border-radius:0 0 var(--r) var(--r); flex-wrap:wrap; gap:8px; }
+.stepper { display:flex; align-items:center; height:38px; border:1px solid var(--border-strong); border-radius:var(--r-sm); background:var(--surface); overflow:hidden; }
+.stepper button { width:30px; height:100%; border:0; background:none; color:var(--ink-2); font-size:16px; }
+.stepper button:hover { background:var(--sunken); }
+.stepper input { width:46px; height:100%; border:0; text-align:center; background:none; font-variant-numeric:tabular-nums; }
+.stepper input:focus { outline:none; background:var(--brand-soft); }
+.stepper .u { padding:0 8px 0 2px; font-size:12px; color:var(--ink-3); min-width:28px; }
+
+/* product picker */
+.picker { position:relative; min-width:0; }
+.picker-btn { width:100%; height:38px; display:flex; align-items:center; gap:8px; padding:0 10px; border:1px solid var(--border-strong);
+  border-radius:var(--r-sm); background:var(--surface); text-align:left; }
+.picker-btn:hover { border-color:var(--ink-3); }
+.picker-btn .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500; }
+.picker-btn .pr { color:var(--ink-3); font-size:12.5px; white-space:nowrap; }
+.picker-btn.empty .nm { color:var(--ink-3); font-weight:400; }
+.pop { position:fixed; z-index:50; width:340px; max-width:calc(100vw - 24px); background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--shadow-pop); overflow:hidden; animation:fade .12s ease-out; }
+.pop-search { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--border); color:var(--ink-3); }
+.pop-search input { flex:1; border:0; background:none; height:24px; color:var(--ink); }
+.pop-search input:focus { outline:none; }
+.pop-list { max-height:320px; overflow:auto; padding:6px; }
+.pop-sec { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); padding:8px 8px 4px; }
+.opt { display:flex; align-items:center; gap:10px; width:100%; padding:8px; border:0; border-radius:var(--r-sm); background:none; text-align:left; }
+.opt .nm { flex:1; min-width:0; } .opt .nm small { display:block; color:var(--ink-3); font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.opt .pr { font-size:12.5px; color:var(--ink-2); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.opt[aria-selected="true"] { background:var(--brand-soft); }
+.opt.cur .nm::after { content:" ✓"; color:var(--brand); }
+.opt.oos .nm { color:var(--ink-3); }
+.pop-empty { padding:18px 12px; text-align:center; color:var(--ink-3); font-size:13px; }
+
+/* bill panel */
+.totals { display:flex; flex-direction:column; gap:8px; font-variant-numeric:tabular-nums; }
+.tline { display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--ink-2); }
+.tline input { width:90px; height:32px; text-align:right; }
+.tgrand { display:flex; justify-content:space-between; align-items:baseline; padding-top:12px; margin-top:4px; border-top:1px dashed var(--border-strong); }
+.tgrand span { font-weight:600; } .tgrand strong { font-size:28px; letter-spacing:-.02em; }
+.warnbox { font-size:12.5px; border-radius:var(--r-sm); padding:8px 10px; background:var(--warn-soft); color:var(--warn); }
+.errbox { font-size:13px; border-radius:var(--r-sm); padding:9px 11px; background:var(--bad-soft); color:var(--bad); white-space:pre-wrap; }
+.checkline { display:flex; gap:8px; align-items:flex-start; font-size:13px; color:var(--ink-2); }
+.checkline input { margin-top:3px; accent-color:var(--brand); }
+.empty-state { text-align:center; padding:28px 16px; color:var(--ink-3); }
+.empty-state .ill { width:56px; height:56px; margin:0 auto 10px; border-radius:16px; display:grid; place-items:center; background:var(--sunken); color:var(--ink-3); }
+.empty-state .ill svg { width:26px; height:26px; }
+.skel { height:62px; margin:10px 16px; border-radius:10px; background:linear-gradient(90deg, var(--sunken), var(--surface-2), var(--sunken)); background-size:200% 100%; animation:shimmer 1.1s infinite; }
+@keyframes shimmer { to { background-position:-200% 0; } }
+
+/* receipt */
+.receipt { position:relative; background:var(--surface-2); border:1px solid var(--border); border-radius:10px 10px 0 0; padding:18px 18px 22px;
+  font:13px/1.45 var(--mono); color:var(--ink); }
+.receipt::after { content:""; position:absolute; left:-1px; right:-1px; bottom:-9px; height:10px;
+  background:linear-gradient(-45deg, transparent 6px, var(--surface-2) 0) 0 0/12px 10px, linear-gradient(45deg, transparent 6px, var(--surface-2) 0) 0 0/12px 10px; }
+.receipt h3 { margin:0; text-align:center; font:700 15px var(--font); }
+.receipt .c { text-align:center; color:var(--ink-3); font-size:12px; }
+.receipt hr { border:0; border-top:1px dashed var(--border-strong); margin:10px 0; }
+.receipt table { width:100%; border-collapse:collapse; } .receipt td { padding:2px 0; vertical-align:top; } .receipt td.t { text-align:right; white-space:nowrap; }
+.receipt .sub { color:var(--ink-3); font-size:12px; }
+.receipt .grand td { font-weight:700; font-size:15px; padding-top:6px; }
+.share { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.share .btn { width:100%; }
+.qr-box { display:flex; gap:14px; align-items:center; padding:12px; border:1px solid var(--border); border-radius:var(--r); background:var(--surface-2); }
+.qr-box .qr { width:116px; height:116px; flex:none; background:#fff; border-radius:8px; padding:6px; }
+.qr-box .qr svg { width:100%; height:100%; display:block; }
+.success { display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:var(--r-sm); background:var(--ok-soft); color:var(--ok); font-weight:600; font-size:13.5px; }
+
+/* chat export list */
+.chat-list { max-height:260px; overflow:auto; border:1px solid var(--border); border-radius:var(--r-sm); margin-top:12px; }
+.chat-msg { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border); background:none; padding:9px 12px; }
+.chat-msg:last-child { border-bottom:0; } .chat-msg:hover { background:var(--brand-soft); }
+.chat-msg .meta { font-size:12px; color:var(--ink-3); } .chat-msg .meta b { color:var(--ink-2); }
+.chat-msg .txt { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+/* orders */
+.kpis { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+.kpi { padding:16px; } .kpi .k { font-size:12.5px; color:var(--ink-3); font-weight:600; } .kpi .v { font-size:26px; font-weight:700; letter-spacing:-.02em; margin-top:4px; font-variant-numeric:tabular-nums; }
+.kpi .s { font-size:12px; color:var(--ink-3); }
+.order { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px 16px; padding:14px 16px; border-bottom:1px solid var(--border); align-items:center; }
+.order:last-child { border-bottom:0; }
+.order .who { font-weight:600; } .order .when { font-size:12px; color:var(--ink-3); }
+.order .what { font-size:13px; color:var(--ink-2); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.order .right { display:flex; gap:12px; align-items:center; }
+.order .amt { font-weight:700; font-variant-numeric:tabular-nums; min-width:70px; text-align:right; }
+.seg { display:inline-flex; border:1px solid var(--border-strong); border-radius:999px; overflow:hidden; }
+.seg button { border:0; background:none; font-size:12px; padding:5px 10px; color:var(--ink-3); font-weight:600; }
+.seg button + button { border-left:1px solid var(--border); }
+.seg button.done { color:var(--brand-ink); background:var(--brand-soft); }
+.seg button.now { color:#fff; background:var(--brand); }
+.seg button.paid.now { background:var(--ok); }
+
+/* price list */
+.tbl-wrap { overflow:auto; }
+table.tbl { width:100%; border-collapse:collapse; font-size:13.5px; }
+.tbl th { position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); padding:10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.tbl td { padding:6px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.tbl tr:hover td { background:var(--surface-2); }
+.tbl .input { height:34px; }
+.savebar { position:sticky; bottom:16px; margin-top:16px; display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:var(--r);
+  background:var(--ink); color:var(--surface); box-shadow:var(--shadow-pop); }
+.savebar .btn.ghost { color:var(--surface); } .savebar .btn.ghost:hover { background:rgba(255,255,255,.1); }
+
+/* settings */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.legend { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px 24px; font-size:12.5px; color:var(--ink-3); }
+.legend b { display:block; color:var(--ink-2); font-size:12.5px; margin-bottom:1px; }
+@media (max-width:820px) { .legend { grid-template-columns:1fr; } }
+.preview { font-size:13px; white-space:pre-wrap; background:var(--surface-2); border:1px dashed var(--border-strong); border-radius:var(--r-sm); padding:12px; color:var(--ink-2); }
+
+/* toasts */
+#toasts { position:fixed; right:20px; bottom:20px; z-index:80; display:flex; flex-direction:column; gap:8px; }
+.toast { display:flex; gap:10px; align-items:center; padding:11px 14px; border-radius:var(--r-sm); background:var(--ink); color:var(--surface); box-shadow:var(--shadow-pop); font-size:13.5px; animation:fade .18s ease-out; max-width:360px; }
+.toast.bad { background:var(--bad); color:#fff; }
+
+.bottomnav { display:none; }
+
+@media (max-width: 1100px) {
+  .order-grid { grid-template-columns:1fr; } .sticky { position:static; }
+}
+@media (max-width: 820px) {
+  .app { grid-template-columns:1fr; }
+  .sidebar { display:none; }
+  .main { padding:16px 14px 92px; }
+  .topbar h1 { font-size:20px; }
+  .item { grid-template-columns:4px minmax(0,1fr) auto; grid-template-areas:"bar wrote total" "bar pick pick" "bar qty rm"; gap:8px 10px; }
+  .item .bar { grid-area:bar; } .item .wrote { grid-area:wrote; } .item .picker { grid-area:pick; } .item .stepper { grid-area:qty; justify-self:start; }
+  .item .line-total { grid-area:total; } .item .rm { grid-area:rm; justify-self:end; }
+  .kpis { grid-template-columns:1fr; } .form-grid { grid-template-columns:1fr; }
+  .order { grid-template-columns:1fr; } .order .right { justify-content:space-between; flex-wrap:wrap; }
+  .bottomnav { display:flex; position:fixed; left:0; right:0; bottom:0; z-index:40; background:var(--surface); border-top:1px solid var(--border); padding:6px 6px calc(6px + env(safe-area-inset-bottom)); }
+  .bottomnav .nav-btn { position:relative; flex-direction:column; gap:2px; font-size:11px; padding:6px 4px; text-align:center; }
+  .bottomnav .count { position:absolute; top:2px; left:calc(50% + 6px); margin:0; font-size:10.5px; padding:0 6px; }
+  .steps { display:none; } .btn .kbd { display:none; }
+  #toasts { left:14px; right:14px; bottom:84px; }
+}
+@media print {
+  body { background:#fff; }
+  .sidebar, .bottomnav, .topbar, #toasts, .page:not(#page-order), #leftCol, .bill-actions, .noprint { display:none !important; }
+  .main { padding:0; } .order-grid { display:block; } .card { border:0; box-shadow:none; }
+  .receipt { border:0; width:72mm; background:#fff; color:#000; } .receipt::after { display:none; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Main">
+    <div class="brand">
+      <div class="brand-mark" id="logo"></div>
+      <div><div class="brand-name">Parchi</div><div class="brand-tag">WhatsApp orders → bills</div></div>
+    </div>
+    <nav id="sideNav"></nav>
+    <div class="side-foot">
+      <div class="model-card" aria-live="polite">
+        <div class="model-row"><span class="dot" id="modelDot"></span><span id="modelTitle">Checking model…</span></div>
+        <div class="model-sub" id="modelSub">Gemma 4 · runs on this computer</div>
+      </div>
+      <div class="privacy"><span data-icon="lock"></span><span>Orders and customer details never leave this computer.</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ================= NEW ORDER ================= -->
+    <section class="page on" id="page-order" aria-labelledby="h-order">
+      <div class="topbar">
+        <div><h1 id="h-order">New order</h1><p id="orderSub">Paste a WhatsApp message. Parchi reads it, you check it, then send the bill.</p></div>
+        <div class="steps" aria-label="Progress">
+          <div class="step on" id="st1"><b>1</b>Paste</div><div class="step-sep"></div>
+          <div class="step" id="st2"><b>2</b>Check</div><div class="step-sep"></div>
+          <div class="step" id="st3"><b>3</b>Send</div>
+        </div>
+      </div>
+
+      <div class="order-grid">
+        <div class="stack" id="leftCol">
+          <div class="card">
+            <div class="card-h"><h2>Customer message</h2>
+              <div class="row" style="margin-left:auto; gap:4px">
+                <button class="btn ghost sm" id="pasteBtn"><span data-icon="clipboard"></span>Paste</button>
+                <label class="btn ghost sm" style="cursor:pointer"><span data-icon="file"></span>Chat export
+                  <input type="file" id="chatFile" accept=".txt,text/plain" class="sr"></label>
+              </div>
+            </div>
+            <div class="card-b">
+              <label class="sr" for="msg">Customer's WhatsApp message</label>
+              <textarea id="msg" class="input" placeholder="e.g. bhaiya 2 kilo atta, 1 amul butter chhota, 6 ande, ek maggi"></textarea>
+              <div class="row" style="margin-top:12px">
+                <div class="grow" style="min-width:160px">
+                  <label class="sr" for="customer">Customer name</label>
+                  <input id="customer" class="input" placeholder="Customer name (optional)" maxlength="80" list="customerList" autocomplete="off">
+                  <datalist id="customerList"></datalist>
+                </div>
+                <div class="grow" style="min-width:150px">
+                  <label class="sr" for="phone">Customer phone</label>
+                  <input id="phone" class="input" placeholder="Phone (for WhatsApp link)" maxlength="20" inputmode="tel">
+                </div>
+                <button class="btn primary" id="readBtn"><span data-icon="sparkle"></span>Read order <span class="kbd">Ctrl ↵</span></button>
+              </div>
+              <div style="margin-top:14px" id="samplesWrap">
+                <div class="lbl" style="margin-bottom:8px">Try a sample message</div>
+                <div class="samples" id="samples"></div>
+              </div>
+              <div id="readErr" class="errbox" hidden style="margin-top:12px"></div>
+              <div id="chatBox" hidden>
+                <div class="row" style="margin-top:14px"><div class="lbl grow" id="chatCount"></div>
+                  <input id="chatSearch" class="input" placeholder="Search messages or names" style="max-width:220px; height:32px">
+                  <button class="icon-btn" id="chatClose" aria-label="Close chat export"><span data-icon="x"></span></button></div>
+                <div class="chat-list" id="chatList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="itemsCard" hidden>
+            <div class="card-h"><h2>Items</h2><span class="muted" id="readInfo" style="font-size:12.5px"></span>
+              <div class="summary-bar" id="summaryBar"></div></div>
+            <div class="items" id="items" aria-live="polite"></div>
+            <div class="items-foot">
+              <button class="btn ghost sm" id="addItem"><span data-icon="plus"></span>Add item</button>
+              <span class="hint" id="lockNote" hidden>This bill is saved. Press “New order” to start another, or “Read order” to re-read this message.</span>
+              <span class="hint">Prices and totals come from your price list, never from the AI.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky">
+          <div class="card" id="billPanel">
+            <div class="card-h"><h2 id="billTitle">Bill</h2><span class="pill neutral" id="billBadge" style="margin-left:auto">Draft</span></div>
+            <div class="card-b" id="billBody"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ORDERS ================= -->
+    <section class="page" id="page-orders" aria-labelledby="h-orders">
+      <div class="topbar"><div><h1 id="h-orders">Orders</h1><p>Track packing, delivery and payment.</p></div>
+        <button class="btn primary" data-go="order"><span data-icon="plus"></span>New order</button></div>
+      <div class="kpis">
+        <div class="card kpi"><div class="k">Orders today</div><div class="v" id="kOrders">0</div><div class="s" id="kOrdersS">&nbsp;</div></div>
+        <div class="card kpi"><div class="k">Sales today</div><div class="v" id="kSales">₹0</div><div class="s">Billed amount</div></div>
+        <div class="card kpi"><div class="k">Still to collect</div><div class="v" id="kUnpaid" style="color:var(--warn)">₹0</div><div class="s" id="kUnpaidS">All orders not marked paid</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h">
+          <div class="row" id="orderFilters" role="group" aria-label="Filter orders"></div>
+          <input id="orderSearch" class="input" placeholder="Search customer or item" style="margin-left:auto; max-width:240px; height:34px">
+        </div>
+        <div id="orderList"></div>
+      </div>
+    </section>
+
+    <!-- ================= PRICE LIST ================= -->
+    <section class="page" id="page-prices" aria-labelledby="h-prices">
+      <div class="topbar"><div><h1 id="h-prices">Price list</h1><p>What you sell, how you sell it, and the words customers use for it.</p></div>
+        <div class="row">
+          <label class="btn" style="cursor:pointer"><span data-icon="upload"></span>Import CSV<input type="file" id="csvFile" accept=".csv" class="sr"></label>
+          <a class="btn" href="/api/skus/export" download="parchi-pricelist.csv"><span data-icon="download"></span>Export</a>
+          <button class="btn primary" id="addSku"><span data-icon="plus"></span>Add product</button>
+        </div></div>
+      <div class="card">
+        <div class="card-h">
+          <div style="position:relative; flex:1; max-width:320px"><input id="skuSearch" class="input" placeholder="Search products or aliases" style="height:34px"></div>
+          <span class="muted" id="skuCount" style="margin-left:auto; font-size:13px"></span>
+        </div>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th title="The name printed on the bill">Product</th><th title="kg / litre: priced per kg or litre, any amount can be billed. piece / pack: priced per item">Sold by</th><th style="text-align:right" title="Price per kg, litre, piece or pack">Price ₹</th><th title="Products that are sizes of the same thing share a group (e.g. maggi) and are marked small or big">Size options</th><th title="Words customers type for this product, separated by ;">Customer words</th><th title="Switch off when you run out. Orders for it are flagged and the reply says it isn't available">Stock</th><th></th></tr></thead>
+          <tbody id="skuRows"></tbody></table></div>
+        <div class="card-b"><div class="legend">
+          <div><b>Product</b> The name printed on the bill. Put the pack size in it (“Amul Butter 100 g”, “Milk 1 L”) and Parchi uses it to work out packs: 2 litre milk → 2 × 1 L.</div>
+          <div><b>Sold by</b> <i>kg / litre</i>: priced per kg or litre, so 0.25 kg can be billed. <i>piece / pack</i>: priced per item, always whole numbers.</div>
+          <div><b>Price ₹</b> Per kg, litre, piece or pack. This is the only place prices come from; the AI never sets a price.</div>
+          <div><b>Size options</b> For one product in several sizes: give them the same group (e.g. “maggi”) and mark them small or big. “Chhota/lahan” then picks small, “bada/motha” picks big; otherwise Parchi asks.</div>
+          <div><b>Customer words</b> What customers actually type, separated by “;” e.g. <i>ande; anda; अंडे</i>. Corrections you make while billing are also remembered.</div>
+          <div><b>Stock</b> You set this. Parchi doesn't count stock. Switch it off when you run out: orders for it turn red, it's left off the bill, and the reply says “not available right now”.</div>
+        </div></div>
+      </div>
+      <div class="savebar" id="saveBar" hidden><span class="grow">You have unsaved changes</span>
+        <button class="btn ghost sm" id="discardSkus">Discard</button><button class="btn primary sm" id="saveSkus">Save price list</button></div>
+    </section>
+
+    <!-- ================= SHOP ================= -->
+    <section class="page" id="page-shop" aria-labelledby="h-shop">
+      <div class="topbar"><div><h1 id="h-shop">Shop settings</h1><p>Shown on the slip, the WhatsApp reply and the UPI QR. Stored only on this computer.</p></div></div>
+      <div class="order-grid">
+        <div class="card"><div class="card-b">
+          <div class="form-grid">
+            <div class="field"><label for="s_name">Shop name</label><input id="s_name" class="input" placeholder="Joshi Kirana Stores"></div>
+            <div class="field"><label for="s_phone">Shop phone</label><input id="s_phone" class="input" inputmode="tel"></div>
+            <div class="field" style="grid-column:1/-1"><label for="s_address">Address</label><input id="s_address" class="input" placeholder="Kothrud, Pune"></div>
+            <div class="field"><label for="s_upi_id">UPI ID</label><input id="s_upi_id" class="input" placeholder="shopname@okaxis" autocomplete="off">
+              <span class="hint" id="upiHint">Customers get a QR for the exact bill amount.</span></div>
+            <div class="field"><label for="s_delivery_note">Line added to every reply</label><input id="s_delivery_note" class="input" placeholder="Delivery by 6 PM"></div>
+          </div>
+          <div class="row" style="margin-top:18px"><button class="btn primary" id="saveShop">Save settings</button></div>
+        </div></div>
+        <div class="card"><div class="card-h"><h2>Reply preview</h2></div><div class="card-b"><div class="preview" id="replyPreview"></div></div></div>
+      </div>
+    </section>
+  </main>
+  <nav class="bottomnav" id="bottomNav" aria-label="Main"></nav>
+</div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $ = (id) => document.getElementById(id);
+function el(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k === "attrs") for (const [a, b] of Object.entries(v)) e.setAttribute(a, b);
+    else e[k] = v;
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k);
+  return e;
+}
+const ICON = {
+  order:'<path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  orders:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h4"/>',
+  prices:'<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  shop:'<path d="M3 9 5 4h14l2 5"/><path d="M4 9v11h16V9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M10 20v-5h4v5"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  clipboard:'<rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>',
+  file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',
+  sparkle:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>', search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  chevron:'<path d="m6 9 6 6 6-6"/>', copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  print:'<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/>',
+  whatsapp:'<path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.5-1.5-2-1-1 1a4 4 0 0 1-2.5-2.5l1-1-1-2z"/>',
+  check:'<path d="m5 12 5 5L20 7"/>', upload:'<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v4h16v-4"/>', download:'<path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v4h16v-4"/>',
+  inbox:'<path d="M3 13h5l2 3h4l2-3h5"/><path d="M5 5h14l2 8v6H3v-6z"/>', trash:'<path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  redo:'<path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/>',
+};
+function icon(name, size) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("class", "i"); s.setAttribute("aria-hidden", "true");
+  if (size) { s.style.width = s.style.height = size + "px"; }
+  s.innerHTML = ICON[name] || ""; return s;
+}
+document.querySelectorAll("[data-icon]").forEach(n => n.replaceWith(icon(n.dataset.icon)));
+$("logo").append(icon("order", 20));
+
+async function api(path, body, method) {
+  const opts = body === undefined ? {} : { method: method || "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) };
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    let msg = data.detail || r.statusText;
+    if (Array.isArray(msg)) msg = msg.map(d => d.msg).join("; ");
+    throw new Error(msg);
+  }
+  return data;
+}
+const fmt = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 });
+const rupee = (v) => { const n = Number(v || 0); return (n < 0 ? "−₹" : "₹") + fmt.format(Math.abs(n)); };
+const UNIT = { kg: "kg", l: "L", pc: "pc", pack: "pkt" };
+function toast(text, bad) {
+  const t = el("div", { class: "toast" + (bad ? " bad" : "") }, icon(bad ? "x" : "check"), el("span", { text }));
+  $("toasts").append(t); setTimeout(() => t.remove(), 3200);
+}
+function debounce(fn, ms) { let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); }; }
+
+/* ---------- navigation ---------- */
+const PAGES = [["order", "New order"], ["orders", "Orders"], ["prices", "Price list"], ["shop", "Shop"]];
+function buildNav(container) {
+  PAGES.forEach(([id, label]) => container.append(el("button", { class: "nav-btn", attrs: { "data-page": id }, onclick: () => go(id) },
+    icon(id), el("span", { text: label }), id === "orders" ? el("span", { class: "count", hidden: true, attrs: { "data-open-count": "" } }) : null)));
+}
+buildNav($("sideNav")); buildNav($("bottomNav"));
+document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
+function go(page) {
+  if (page !== "prices" && PRICE.dirty && !confirm("Leave without saving your price list changes?")) return;
+  if (page !== "prices" && PRICE.dirty) { PRICE.rows = structuredClone(SKUS); PRICE.dirty = false; $("saveBar").hidden = true; }
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === "page-" + page));
+  document.querySelectorAll(".nav-btn").forEach(b => b.dataset.page === page ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  if (page === "orders") loadOrders();
+  if (page === "prices") renderPrices();
+  if (page === "shop") loadShop();
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- data ---------- */
+let SKUS = [], SKU = {}, SHOP = {};
+async function loadSkus() { SKUS = await api("/api/skus"); SKU = Object.fromEntries(SKUS.map(s => [s.sku, s])); }
+async function loadCustomers() {
+  const list = await api("/api/customers").catch(() => []);
+  const dl = $("customerList"); dl.replaceChildren(...list.map(c => el("option", { value: c.name, attrs: { "data-phone": c.phone } })));
+  CUSTOMERS = Object.fromEntries(list.map(c => [c.name.toLowerCase(), c.phone]));
+}
+let CUSTOMERS = {};
+$("customer").addEventListener("change", () => { const p = CUSTOMERS[$("customer").value.trim().toLowerCase()]; if (p && !$("phone").value) $("phone").value = p; });
+
+/* ---------- model status + warm-up ---------- */
+function setModel(state, title, sub) {
+  $("modelDot").className = "dot " + state; $("modelTitle").textContent = title; if (sub) $("modelSub").textContent = sub;
+}
+async function checkModel() {
+  try {
+    const h = await api("/api/health");
+    if (!h.ollama) return setModel("bad", "Ollama is not running", "Start Ollama, then reload this page");
+    if (!h.model_installed) return setModel("bad", "Model not installed", `Run: ollama pull ${h.model}`);
+    setModel("warn", "Warming up Gemma 4…", "Loading the model so orders read fast");
+    const w = await api("/api/warmup", {});
+    setModel(w.ready ? "ok" : "warn", w.ready ? "Gemma 4 ready" : "Model is slow to load", `${h.model} · runs on this computer`);
+  } catch { setModel("bad", "Parchi server not reachable"); }
+}
+
+/* ---------- order flow ---------- */
+const SAMPLES = [
+  "bhaiya 2 kilo atta, 1 amul butter chhota, 6 ande, ek maggi",
+  "काका, 1 किलो पोहे, अर्धा किलो साखर, 6 अंडी आणि 1 चहा पावडर पाठवा",
+  "dada 2 kilo kanda, 1 kilo batata, ek amul butter motha ani 3 maggi lahan",
+  "Hi uncle, please send 1 kg kaju, 200 gm paneer, 1 fortune oil and 12 eggs",
+  "bhaiya dedh kilo chawal, paav kilo jeera, dahi aur thoda dhaniya bhej do",
+];
+SAMPLES.forEach(s => $("samples").append(el("button", { class: "chip", text: s.length > 42 ? s.slice(0, 40) + "…" : s, title: s,
+  onclick: () => { $("msg").value = s; $("msg").focus(); } })));
+
+const ORDER = { lines: [], quote: null, quoteErr: "", bill: null, raw: "", seq: 0 };
+const STATUS_LABEL = { ok: "Matched", check: "Check", unknown: "Not in list", out: "Out of stock", skip: "Left out" };
+
+function setStep(n) {
+  [1, 2, 3].forEach(i => { const s = $("st" + i); s.classList.toggle("on", i === n); s.classList.toggle("done", i < n); });
+}
+function lineState(ln) {
+  if (ln.removed) return "skip";
+  const s = SKU[ln.sku];
+  if (!s) return "unknown";
+  if (!s.in_stock) return "out";
+  if (ln.touched) return "ok";
+  return ln.status === "unknown" ? "check" : ln.status;
+}
+
+$("pasteBtn").onclick = async () => {
+  try { const t = await navigator.clipboard.readText(); if (t) { $("msg").value = t; $("msg").focus(); } else toast("Clipboard is empty", true); }
+  catch { toast("Browser blocked clipboard access. Press Ctrl+V in the box instead.", true); }
+};
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && $("page-order").classList.contains("on")) {
+    e.preventDefault(); if (ORDER.lines.length && document.activeElement !== $("msg")) createBill(); else readOrder();
+  }
+});
+$("readBtn").onclick = readOrder;
+
+async function readOrder() {
+  const text = $("msg").value.trim(); $("readErr").hidden = true;
+  if (!text) { showErr("Paste the customer's message first."); return; }
+  ORDER.bill = null; ORDER.raw = text; ORDER.lines = [];
+  $("itemsCard").hidden = false; $("items").replaceChildren(el("div", { class: "skel" }), el("div", { class: "skel" }), el("div", { class: "skel" }));
+  $("summaryBar").replaceChildren(); $("readInfo").textContent = "Reading with Gemma 4 on this computer…";
+  const btn = $("readBtn"); btn.disabled = true;
+  try {
+    const res = await api("/api/read", { text });
+    if (!res.is_order) {
+      $("itemsCard").hidden = true; showErr("This doesn't look like an order. No items were found, e.g. a thank-you or payment message."); setStep(1); renderBill(); return;
+    }
+    ORDER.lines = res.lines.map(l => ({ ...l, ref: "l" + (++ORDER.seq), qty: l.qty ?? "1", touched: false, removed: false }));
+    $("readInfo").textContent = `Read in ${(res.ms / 1000).toFixed(1)} s`;
+    setStep(2); renderItems(); quote();
+  } catch (e) { $("itemsCard").hidden = true; showErr(e.message); }
+  finally { btn.disabled = false; }
+}
+function showErr(m) { $("readErr").textContent = m; $("readErr").hidden = false; }
+
+function renderItems() {
+  const box = $("items"); box.replaceChildren();
+  const counts = { ok: 0, check: 0, unknown: 0, out: 0, skip: 0 };
+  if (!ORDER.lines.length) box.append(el("div", { class: "empty-state" }, el("div", { class: "ill" }, icon("inbox")), "No items yet. Add one below."));
+  ORDER.lines.forEach((ln) => {
+    const st = lineState(ln); counts[st]++;
+    const sku = SKU[ln.sku];
+    const q = ORDER.quote?.rows?.find(r => r.ref === ln.ref);
+    const note = ln.removed ? "Left out of the bill" : st === "out" ? "Out of stock, will be left out and mentioned in the reply"
+      : st === "unknown" ? (ln.raw ? "Not in your price list. Pick a product or leave it out" : "Pick a product")
+      : (!ln.touched && ln.note) ? ln.note : (ln.touched ? "Confirmed by you" : "");
+    const qtyIn = el("input", { value: ln.qty, inputMode: "decimal", attrs: { "aria-label": "Quantity" },
+      oninput: () => { ln.qty = qtyIn.value; ln.touched = true; quote(); refreshCounts(); } });
+    const loose = sku && ["kg", "l"].includes(sku.unit);
+    const bump = (dir) => {
+      const cur = Number(ln.qty) || 0;
+      const step = !loose ? 1 : (dir < 0 ? (cur <= 1 ? 0.25 : cur <= 5 ? 0.5 : 1) : (cur < 1 ? 0.25 : cur < 5 ? 0.5 : 1));
+      const min = loose ? 0.25 : 1;
+      const v = Math.max(min, Math.round((cur + dir * step) * 100) / 100);
+      ln.qty = String(v); ln.touched = true; renderItems(); quote();
+    };
+    box.append(el("div", { class: "item " + st },
+      el("div", { class: "bar" }),
+      el("div", { class: "wrote" }, ln.raw ? el("q", { text: ln.raw }) : el("span", { class: "muted", text: "Added by you" }),
+        note ? el("span", { class: "note", text: note }) : null,
+        ln.choices?.length && !ln.removed && st !== "out" ? el("div", { class: "choices", attrs: { role: "group", "aria-label": "Pack options" } },
+          ln.choices.map(c => el("button", { class: "chip", text: c.label, attrs: { "aria-pressed": String(String(ln.qty) === c.qty) },
+            onclick: () => { ln.qty = c.qty; ln.touched = true; renderItems(); quote(); } }))) : null),
+      picker(ln),
+      el("div", { class: "stepper" },
+        el("button", { text: "−", attrs: { "aria-label": "Less" }, onclick: () => bump(-1) }),
+        qtyIn,
+        el("button", { text: "+", attrs: { "aria-label": "More" }, onclick: () => bump(1) }),
+        el("span", { class: "u", text: sku ? UNIT[sku.unit] : "" })),
+      el("div", { class: "line-total" }, q ? rupee(q.total) : el("span", { class: "muted", text: "—" }), sku && q ? el("small", { text: `${rupee(sku.price)}/${UNIT[sku.unit]}` }) : null),
+      el("button", { class: "icon-btn rm", attrs: { "aria-label": ln.removed ? "Put back" : "Leave out" }, title: ln.removed ? "Put back" : "Leave out",
+        onclick: () => { ln.removed = !ln.removed; renderItems(); quote(); } }, icon(ln.removed ? "redo" : "trash"))));
+  });
+  renderCounts(counts);
+  $("samplesWrap").hidden = ORDER.lines.length > 0;
+  const locked = !!ORDER.bill;
+  if (locked) box.querySelectorAll("button, input").forEach(x => { x.disabled = true; });
+  $("addItem").hidden = locked;
+  $("lockNote").hidden = !locked;
+}
+function refreshCounts() { const c = { ok: 0, check: 0, unknown: 0, out: 0, skip: 0 }; ORDER.lines.forEach(l => c[lineState(l)]++); renderCounts(c); }
+function renderCounts(c) {
+  const bar = $("summaryBar"); bar.replaceChildren();
+  if (c.ok) bar.append(el("span", { class: "pill ok", text: `${c.ok} matched` }));
+  if (c.check) bar.append(el("span", { class: "pill check", text: `${c.check} to check` }));
+  if (c.unknown) bar.append(el("span", { class: "pill unknown", text: `${c.unknown} not in list` }));
+  if (c.out) bar.append(el("span", { class: "pill out", text: `${c.out} out of stock` }));
+  ORDER.counts = c;
+}
+$("addItem").onclick = () => {
+  const ln = { ref: "l" + (++ORDER.seq), raw: "", phrase: "", status: "unknown", note: null, options: [], sku: null, qty: "1", touched: true, removed: false };
+  ORDER.lines.push(ln); if (!ORDER.raw) ORDER.raw = $("msg").value.trim(); setStep(2); renderItems();
+  const btns = $("items").querySelectorAll(".picker-btn"); btns[btns.length - 1]?.click();
+};
+
+/* ---------- searchable product picker ---------- */
+let openPop = null;
+function closePop() { if (openPop) { openPop.remove(); openPop = null; } }
+document.addEventListener("mousedown", (e) => { if (openPop && !openPop.contains(e.target) && !e.target.closest(".picker-btn")) closePop(); });
+document.addEventListener("touchstart", (e) => { if (openPop && !openPop.contains(e.target) && !e.target.closest(".picker-btn")) closePop(); }, { passive: true });
+// Follow the button when the page scrolls or the phone keyboard opens, instead of closing.
+const placePop = () => { if (openPop && openPop._place) openPop._place(); };
+window.addEventListener("resize", placePop);
+(window.visualViewport || window).addEventListener("resize", placePop);
+document.addEventListener("scroll", (e) => { if (openPop && !openPop.contains(e.target)) placePop(); }, true);
+
+function picker(ln) {
+  const sku = SKU[ln.sku];
+  const btn = el("button", { class: "picker-btn" + (sku ? "" : " empty"), attrs: { "aria-haspopup": "listbox", "aria-label": "Product" } },
+    el("span", { class: "nm", text: sku ? sku.name : "Choose product…" }), sku ? el("span", { class: "pr", text: `${rupee(sku.price)}/${UNIT[sku.unit]}` }) : null, icon("chevron"));
+  btn.onclick = () => { if (openPop) { closePop(); return; } openPicker(btn, ln); };
+  return el("div", { class: "picker" }, btn);
+}
+function openPicker(anchor, ln) {
+  const input = el("input", { placeholder: "Search product or customer word…", attrs: { "aria-label": "Search products" } });
+  const list = el("div", { class: "pop-list", attrs: { role: "listbox" } });
+  const pop = el("div", { class: "pop" }, el("div", { class: "pop-search" }, icon("search"), input), list);
+  document.body.append(pop); openPop = pop;
+  pop._place = () => {
+    if (!anchor.isConnected) { closePop(); return; }
+    const vv = window.visualViewport, vw = vv ? vv.width : window.innerWidth, vh = vv ? vv.height : window.innerHeight;
+    const r = anchor.getBoundingClientRect();
+    const w = Math.min(Math.max(r.width, 340), vw - 24);
+    const left = Math.max(12, Math.min(r.left, vw - w - 12));
+    const below = vh - r.bottom, above = r.top;
+    pop.style.width = w + "px"; pop.style.left = left + "px";
+    const openUp = below < 300 && above > below;
+    const room = Math.max(160, (openUp ? above : below) - 70);
+    list.style.maxHeight = Math.min(320, room) + "px";
+    if (openUp) { pop.style.top = ""; pop.style.bottom = (vh - r.top + 6) + "px"; }
+    else { pop.style.bottom = ""; pop.style.top = (r.bottom + 6) + "px"; }
+  };
+  pop._place();
+  const suggested = (ln.options || []).map(o => SKU[o.sku]).filter(Boolean);
+  let flat = [], active = 0;
+  const norm = (s) => (s || "").toLowerCase().normalize("NFKC");
+  function score(s, q) {
+    if (!q) return 1;
+    const hay = [s.name, s.group, ...(s.aliases || []), s.sku].map(norm);
+    let best = 0;
+    for (const h of hay) { if (h === q) best = Math.max(best, 100); else if (h.startsWith(q)) best = Math.max(best, 80); else if (h.split(/\s+/).some(w => w.startsWith(q))) best = Math.max(best, 70); else if (h.includes(q)) best = Math.max(best, 50); }
+    return best;
+  }
+  function draw() {
+    const q = norm(input.value.trim()); list.replaceChildren(); flat = [];
+    const add = (title, items) => { if (!items.length) return; list.append(el("div", { class: "pop-sec", text: title })); items.forEach(s => { flat.push(s); list.append(optEl(s, flat.length - 1)); }); };
+    if (!q && suggested.length) add("Suggested", suggested);
+    const rest = SKUS.map(s => [score(s, q), s]).filter(([sc, s]) => sc > 0 && (q || !suggested.includes(s))).sort((a, b) => b[0] - a[0]).map(x => x[1]);
+    add(q ? "Results" : "All products", rest);
+    flat.push(null); list.append(el("button", { class: "opt", attrs: { role: "option", "data-i": flat.length - 1 }, onmousedown: (e) => e.preventDefault(), onclick: () => choose(null) },
+      icon("x"), el("span", { class: "nm", text: "Leave this item out" })));
+    if (flat.length === 1) list.prepend(el("div", { class: "pop-empty", text: `No product matches “${input.value}”. Add it in the Price list.` }));
+    active = Math.min(active, flat.length - 1); highlight();
+  }
+  function optEl(s, i) {
+    return el("button", { class: "opt" + (s.sku === ln.sku ? " cur" : "") + (s.in_stock ? "" : " oos"), attrs: { role: "option", "data-i": i },
+      onmousedown: (e) => e.preventDefault(), onclick: () => choose(s), onmousemove: () => { active = i; highlight(); } },
+      el("span", { class: "nm", text: s.name }, el("small", { text: s.in_stock ? (s.aliases || []).slice(0, 4).join(" · ") : "Out of stock" })),
+      el("span", { class: "pr", text: `${rupee(s.price)}/${UNIT[s.unit]}` }));
+  }
+  function highlight() { list.querySelectorAll(".opt").forEach(o => o.setAttribute("aria-selected", String(Number(o.dataset.i) === active))); list.querySelector(`[data-i="${active}"]`)?.scrollIntoView({ block: "nearest" }); }
+  function choose(s) {
+    if (s) { ln.sku = s.sku; ln.removed = false; } else { ln.removed = true; }
+    ln.touched = true; closePop(); renderItems(); quote();
+  }
+  input.addEventListener("input", () => { active = 0; draw(); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(active + 1, flat.length - 1); highlight(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(active - 1, 0); highlight(); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(flat[active]); }
+    else if (e.key === "Escape") { closePop(); anchor.focus(); }
+  });
+  draw(); input.focus();
+}
+
+/* ---------- live quote (server does the maths) ---------- */
+const quote = debounce(async () => {
+  if (ORDER.bill) return;
+  const lines = billLines();
+  if (!lines.some(l => l.sku)) { ORDER.quote = null; ORDER.quoteErr = ""; renderBill(); updateTotalsInRows(); return; }
+  try { ORDER.quote = await api("/api/bill", { ...billMeta(), lines, save: false }); ORDER.quoteErr = ""; }
+  catch (e) { ORDER.quoteErr = e.message; }
+  renderBill(); updateTotalsInRows();
+}, 220);
+function updateTotalsInRows() {
+  const rows = $("items").querySelectorAll(".item");
+  ORDER.lines.forEach((ln, i) => {
+    const cell = rows[i]?.querySelector(".line-total"); if (!cell) return;
+    const q = ORDER.quote?.rows?.find(r => r.ref === ln.ref); const sku = SKU[ln.sku];
+    cell.replaceChildren(q ? rupee(q.total) : el("span", { class: "muted", text: "—" }), sku && q ? el("small", { text: `${rupee(sku.price)}/${UNIT[sku.unit]}` }) : "");
+  });
+}
+function billLines() {
+  // Lines with no product (not in the price list) are sent too, so the reply can say they're unavailable.
+  return ORDER.lines.filter(l => !l.removed && (l.sku || l.raw)).map(l => ({ ref: l.ref, sku: l.sku, qty: String(l.qty ?? "1"), raw: l.raw, phrase: l.phrase,
+    learn: $("learnBox") ? $("learnBox").checked && l.touched && !!l.phrase : l.touched && !!l.phrase }));
+}
+function billMeta() {
+  return { customer: $("customer").value.trim(), phone: $("phone").value.trim(), raw_text: ORDER.raw || $("msg").value.trim(),
+    delivery: ORDER.delivery || "0", discount: ORDER.discount || "0" };
+}
+
+function renderBill() {
+  const body = $("billBody"); body.replaceChildren();
+  if (ORDER.bill) return renderReceipt(ORDER.bill);
+  $("billTitle").textContent = "Bill"; $("billBadge").textContent = "Draft"; $("billBadge").className = "pill neutral";
+  if (!ORDER.lines.length) {
+    body.append(el("div", { class: "empty-state" }, el("div", { class: "ill" }, icon("order")),
+      el("div", { style: "font-weight:600; color:var(--ink-2)", text: "No order yet" }),
+      el("div", { style: "font-size:13px; margin-top:4px", text: "Paste a message and press Read order. The bill builds here as you check items." })));
+    return;
+  }
+  const q = ORDER.quote;
+  const dIn = el("input", { class: "input", value: ORDER.delivery || "0", inputMode: "decimal", attrs: { "aria-label": "Delivery charge" }, oninput: () => { ORDER.delivery = dIn.value; quote(); } });
+  const xIn = el("input", { class: "input", value: ORDER.discount || "0", inputMode: "decimal", attrs: { "aria-label": "Discount" }, oninput: () => { ORDER.discount = xIn.value; quote(); } });
+  const c = ORDER.counts || {};
+  const billable = billLines().filter(l => l.sku).length;
+  const pending = (c.check || 0);
+  body.append(el("div", { class: "totals" },
+    el("div", { class: "tline" }, el("span", { text: `Items (${q?.rows?.length || 0})` }), el("span", { text: rupee(q?.subtotal) })),
+    el("div", { class: "tline" }, el("span", { text: "Delivery ₹" }), dIn),
+    el("div", { class: "tline" }, el("span", { text: "Discount ₹" }), xIn),
+    q && Number(q.round_off) ? el("div", { class: "tline" }, el("span", { text: "Round off" }), el("span", { text: rupee(q.round_off) })) : null,
+    el("div", { class: "tgrand" }, el("span", { text: "Total" }), el("strong", { text: rupee(q?.total) }))));
+  if (ORDER.quoteErr) body.append(el("div", { class: "errbox", style: "margin-top:12px", text: ORDER.quoteErr }));
+  if (q?.skipped?.length) body.append(el("div", { class: "warnbox", style: "margin-top:12px", text: "Not available, will be mentioned in the reply: " + q.skipped.join(", ") }));
+  if (pending) body.append(el("div", { class: "warnbox", style: "margin-top:12px", text: `${pending} item${pending > 1 ? "s" : ""} marked “Check”. Look them over before billing.` }));
+  const learn = el("input", { type: "checkbox", id: "learnBox", checked: ORDER.learn !== false, onchange: () => { ORDER.learn = learn.checked; } });
+  body.append(el("label", { class: "checkline", style: "margin:14px 0" }, learn, el("span", {}, "Remember my corrections ", el("span", { class: "muted", text: "(e.g. “biskut” → Parle-G next time)" }))));
+  const createBtn = el("button", { class: "btn primary lg", id: "createBtn", disabled: !billable || !!ORDER.quoteErr, onclick: createBill },
+    icon("check"), el("span", { text: "Create bill" }), el("span", { class: "kbd", text: "Ctrl ↵" }));
+  body.append(createBtn);
+  if (!billable) body.append(el("div", { class: "hint", style: "margin-top:8px; text-align:center", text: "Choose a product for at least one item." }));
+}
+
+async function createBill() {
+  if (ORDER.bill || ORDER.saving || !billLines().some(l => l.sku) || ORDER.quoteErr) return;
+  ORDER.saving = true;
+  const btn = $("createBtn"); if (btn) { btn.disabled = true; btn.children[1].textContent = "Saving…"; }
+  try {
+    const b = await api("/api/bill", { ...billMeta(), lines: billLines(), save: true });
+    ORDER.bill = b; setStep(3); renderBill(); renderItems(); loadSkus(); loadCustomers(); refreshOpenCount();
+    toast(`Order #${b.order_id} saved`);
+    if (window.innerWidth < 1100) $("billPanel").scrollIntoView({ behavior: "smooth" });
+  } catch (e) { toast(e.message, true); renderBill(); }
+  finally { ORDER.saving = false; }
+}
+
+function renderReceipt(b) {
+  $("billTitle").textContent = `Order #${b.order_id}`; $("billBadge").textContent = "Saved"; $("billBadge").className = "pill ok";
+  const body = $("billBody");
+  const rc = el("div", { class: "receipt", id: "receipt" },
+    el("h3", { text: b.shop.name || "Your shop" }),
+    b.shop.address ? el("div", { class: "c", text: b.shop.address }) : null,
+    b.shop.phone ? el("div", { class: "c", text: "Ph " + b.shop.phone }) : null,
+    el("div", { class: "c", text: `#${b.order_id} · ${new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}` }),
+    $("customer").value.trim() ? el("div", { class: "c", text: "For " + $("customer").value.trim() }) : null,
+    el("hr"),
+    el("table", {}, b.rows.map(r => el("tr", {}, el("td", {}, r.name, el("div", { class: "sub", text: `${r.qty_text} × ${rupee(r.price)}` })), el("td", { class: "t", text: rupee(r.total) })))),
+    el("hr"),
+    el("table", {},
+      el("tr", {}, el("td", { text: "Subtotal" }), el("td", { class: "t", text: rupee(b.subtotal) })),
+      Number(b.delivery) ? el("tr", {}, el("td", { text: "Delivery" }), el("td", { class: "t", text: rupee(b.delivery) })) : null,
+      Number(b.discount) ? el("tr", {}, el("td", { text: "Discount" }), el("td", { class: "t", text: "−" + rupee(b.discount) })) : null,
+      Number(b.round_off) ? el("tr", {}, el("td", { text: "Round off" }), el("td", { class: "t", text: rupee(b.round_off) })) : null,
+      el("tr", { class: "grand" }, el("td", { text: "TOTAL" }), el("td", { class: "t", text: rupee(b.total) }))),
+    b.skipped.length ? el("div", { class: "sub", style: "margin-top:6px", text: "Not available: " + b.skipped.join(", ") }) : null,
+    el("hr"), el("div", { class: "c", text: "Order bill · not a GST tax invoice" }));
+  const reply = el("textarea", { class: "input", value: b.reply, style: "min-height:150px; font-size:13.5px", attrs: { "aria-label": "WhatsApp reply" } });
+  const copyBtn = el("button", { class: "btn", onclick: async () => {
+    try { await navigator.clipboard.writeText(reply.value); } catch { reply.select(); document.execCommand("copy"); }
+    toast("Reply copied. Paste it in WhatsApp"); } }, icon("copy"), "Copy reply");
+  const wa = el("a", { class: "btn primary", href: b.wa_link, target: "_blank", rel: "noopener" }, icon("whatsapp"), "WhatsApp");
+  reply.addEventListener("input", () => { wa.href = (b.wa_link.split("?")[0]) + "?text=" + encodeURIComponent(reply.value); });
+  const qr = b.qr_svg ? (() => {
+    const svg = new DOMParser().parseFromString(b.qr_svg, "image/svg+xml").documentElement;
+    if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
+    svg.querySelectorAll("script, foreignObject").forEach(n => n.remove());
+    return el("div", { class: "qr-box" }, el("div", { class: "qr" }, document.importNode(svg, true)),
+      el("div", {}, el("div", { style: "font-weight:650", text: "Scan to pay " + rupee(b.total) }), el("div", { class: "hint", text: "UPI · " + b.shop.upi_id }),
+        el("div", { class: "hint", style: "margin-top:6px", text: "Show this on screen, or share a screenshot with the bill." })));
+  })() : el("div", { class: "warnbox", text: "Add your UPI ID in Shop settings to get a payment QR on every bill." });
+  body.append(el("div", { class: "success", style: "margin-bottom:14px" }, icon("check"), `Bill ready · ${rupee(b.total)}`),
+    rc, el("div", { style: "height:22px" }),
+    el("div", { class: "bill-actions", style: "display:flex; flex-direction:column; gap:12px" },
+      el("div", { class: "lbl", text: "WhatsApp reply" }), reply,
+      el("div", { class: "share" }, copyBtn, wa),
+      el("div", { class: "hint", text: "Parchi never sends anything by itself. You check the reply and press send." }),
+      qr,
+      el("div", { class: "share" }, el("button", { class: "btn", onclick: () => window.print() }, icon("print"), "Print slip"),
+        el("button", { class: "btn", onclick: newOrder }, icon("plus"), "New order"))));
+}
+function newOrder() {
+  Object.assign(ORDER, { lines: [], quote: null, quoteErr: "", bill: null, raw: "", delivery: "0", discount: "0", counts: null });
+  $("msg").value = ""; $("customer").value = ""; $("phone").value = ""; $("itemsCard").hidden = true; $("readErr").hidden = true; $("samplesWrap").hidden = false;
+  setStep(1); renderBill(); $("msg").focus();
+}
+
+/* ---------- chat export ---------- */
+let CHAT = [];
+$("chatFile").onchange = async (ev) => {
+  const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+  try { CHAT = (await api("/api/whatsapp/parse", { text: await f.text() })).reverse(); $("chatBox").hidden = false; drawChat(); }
+  catch (e) { toast(e.message, true); }
+};
+$("chatSearch").oninput = () => drawChat();
+$("chatClose").onclick = () => { $("chatBox").hidden = true; CHAT = []; };
+function drawChat() {
+  const q = $("chatSearch").value.trim().toLowerCase();
+  const items = CHAT.filter(m => !q || m.text.toLowerCase().includes(q) || m.sender.toLowerCase().includes(q)).slice(0, 80);
+  $("chatCount").textContent = `${CHAT.length} messages in this chat · newest first · click one to bill it`;
+  $("chatList").replaceChildren(...items.map(m => el("button", { class: "chat-msg", onclick: () => {
+    $("msg").value = m.text; $("customer").value = m.sender; $("customer").dispatchEvent(new Event("change")); $("msg").focus(); window.scrollTo({ top: 0, behavior: "smooth" }); } },
+    el("div", { class: "meta" }, el("b", { text: m.sender }), ` · ${m.date} ${m.time}`), el("div", { class: "txt", text: m.text }))));
+  if (!items.length) $("chatList").append(el("div", { class: "pop-empty", text: "No messages match." }));
+}
+
+/* ---------- orders ---------- */
+let ORDERS = [], FILTER = "open";
+const FILTERS = [["open", "To do"], ["unpaid", "Unpaid"], ["paid", "Paid"], ["all", "All"]];
+FILTERS.forEach(([id, label]) => $("orderFilters").append(el("button", { class: "chip", text: label, attrs: { "aria-pressed": String(id === FILTER), "data-f": id },
+  onclick: () => { FILTER = id; document.querySelectorAll("#orderFilters .chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.f === id))); drawOrders(); } })));
+$("orderSearch").oninput = () => drawOrders();
+async function loadOrders() { ORDERS = await api("/api/orders").catch(() => ORDERS); drawOrders(); setOpenBadge(); }
+async function refreshOpenCount() {
+  ORDERS = await api("/api/orders").catch(() => ORDERS);
+  setOpenBadge();
+  if ($("page-orders").classList.contains("on")) drawOrders();   // keep the list in step with the data
+}
+function setOpenBadge() {
+  const open = ORDERS.filter(o => o.status !== "paid" && o.status !== "delivered").length;
+  document.querySelectorAll("[data-open-count]").forEach(n => { n.textContent = open; n.hidden = !open; n.title = `${open} order${open === 1 ? "" : "s"} still to pack or deliver`; });
+}
+async function setOrderStatus(id, s, label) {
+  const o = ORDERS.find(x => x.id === id); if (!o || o.status === s) return;
+  const before = o.status;
+  o.status = s; drawOrders(); setOpenBadge();                     // update the screen at once
+  try { await api(`/api/orders/${id}/status`, { status: s }); toast(`Order #${id} marked ${label.toLowerCase()}`); }
+  catch (e) { const cur = ORDERS.find(x => x.id === id); if (cur) cur.status = before; drawOrders(); setOpenBadge(); toast(e.message, true); }
+}
+function drawOrders() {
+  const today = new Date().toDateString();
+  const todays = ORDERS.filter(o => new Date(o.created * 1000).toDateString() === today);
+  $("kOrders").textContent = todays.length;
+  $("kOrdersS").textContent = todays.filter(o => o.status === "new").length + " waiting to be packed";
+  $("kSales").textContent = rupee(todays.reduce((s, o) => s + Number(o.total), 0));
+  const unpaid = ORDERS.filter(o => o.status !== "paid");
+  $("kUnpaid").textContent = rupee(unpaid.reduce((s, o) => s + Number(o.total), 0));
+  $("kUnpaidS").textContent = `${unpaid.length} order${unpaid.length === 1 ? "" : "s"} not marked paid`;
+  const q = $("orderSearch").value.trim().toLowerCase();
+  const list = ORDERS.filter(o => FILTER === "all" || (FILTER === "open" && !["delivered", "paid"].includes(o.status)) || (FILTER === "unpaid" && o.status !== "paid") || (FILTER === "paid" && o.status === "paid"))
+    .filter(o => !q || (o.customer || "").toLowerCase().includes(q) || o.lines.some(l => l.name.toLowerCase().includes(q)));
+  const box = $("orderList"); box.replaceChildren();
+  if (!list.length) { box.append(el("div", { class: "empty-state" }, el("div", { class: "ill" }, icon("inbox")), ORDERS.length ? "No orders in this view." : "No orders yet. Bills you create appear here.")); return; }
+  const STEPS = ["new", "packed", "delivered", "paid"], LBL = { new: "New", packed: "Packed", delivered: "Delivered", paid: "Paid" };
+  list.forEach(o => {
+    const idx = STEPS.indexOf(o.status);
+    const seg = el("div", { class: "seg", attrs: { role: "group", "aria-label": "Order status" } }, STEPS.map((s, i) => el("button", {
+      class: (i < idx ? "done " : i === idx ? "now " : "") + s, text: LBL[s], attrs: { "aria-pressed": String(i === idx) },
+      onclick: () => setOrderStatus(o.id, s, LBL[s]) })));
+    const d = new Date(o.created * 1000);
+    box.append(el("div", { class: "order" },
+      el("div", { style: "min-width:0" },
+        el("div", { class: "row", style: "gap:8px" }, el("span", { class: "who", text: o.customer || "Walk-in / unnamed" }), el("span", { class: "when", text: `#${o.id} · ${d.toDateString() === today ? d.toLocaleTimeString("en-IN", { timeStyle: "short" }) : d.toLocaleDateString("en-IN", { dateStyle: "medium" })}` })),
+        el("div", { class: "what", text: o.lines.map(l => `${l.name} ${l.qty_text}`).join(" · ") })),
+      el("div", { class: "right" }, el("span", { class: "amt", text: rupee(o.total) }), seg,
+        el("button", { class: "icon-btn", title: "Bill this order again", attrs: { "aria-label": "Bill again" }, onclick: () => {
+          newOrder(); $("msg").value = o.raw || ""; $("customer").value = o.customer || ""; $("phone").value = o.phone || ""; go("order"); toast("Order loaded. Press Read order"); } }, icon("redo")))));
+  });
+}
+
+/* ---------- price list ---------- */
+const PRICE = { rows: [], dirty: false };
+function renderPrices() {
+  if (!PRICE.dirty) PRICE.rows = structuredClone(SKUS);
+  const q = $("skuSearch").value.trim().toLowerCase();
+  const tb = $("skuRows"); tb.replaceChildren();
+  const shown = PRICE.rows.filter(s => !q || [s.name, s.sku, s.group, ...(s.aliases || [])].some(x => (x || "").toLowerCase().includes(q)));
+  $("skuCount").textContent = `${shown.length} of ${PRICE.rows.length} products`;
+  const dirty = () => { PRICE.dirty = true; $("saveBar").hidden = false; };
+  shown.forEach(s => {
+    const inp = (key, attrs = {}) => { const x = el("input", { class: "input", value: key === "aliases" ? (s.aliases || []).join("; ") : (s[key] ?? ""),
+      placeholder: { name: "Product name, with pack size", price: "0", aliases: "words customers use; separated by ;" }[key] || "", ...attrs });
+      x.oninput = () => { s[key] = key === "aliases" ? x.value.split(";").map(a => a.trim()).filter(Boolean) : x.value; dirty(); }; return x; };
+    const unit = el("select", { class: "input", style: "width:84px", attrs: { "aria-label": "Sold by" } }, ["kg", "l", "pc", "pack"].map(u => el("option", { value: u, text: { kg: "kg", l: "litre", pc: "piece", pack: "pack" }[u] })));
+    unit.value = s.unit; unit.onchange = () => { s.unit = unit.value; dirty(); };
+    const size = el("select", { class: "input", style: "width:82px", attrs: { "aria-label": "Size" } }, [["", "—"], ["small", "small"], ["big", "big"]].map(([v, t]) => el("option", { value: v, text: t })));
+    size.value = s.size || ""; size.onchange = () => { s.size = size.value; dirty(); };
+    const stockTxt = el("span", { text: s.in_stock ? "In stock" : "Out of stock" });
+    const stock = el("input", { type: "checkbox", checked: s.in_stock, attrs: { "aria-label": "In stock" }, onchange: () => {
+      s.in_stock = stock.checked; stockTxt.textContent = stock.checked ? "In stock" : "Out of stock";
+      stockLbl.className = "stock " + (stock.checked ? "on" : "off"); dirty(); } });
+    const stockLbl = el("label", { class: "stock " + (s.in_stock ? "on" : "off") }, el("span", { class: "switch" }, stock, el("span")), stockTxt);
+    tb.append(el("tr", {},
+      el("td", { style: "min-width:220px" }, inp("name", { attrs: { "aria-label": "Product name" } })),
+      el("td", {}, unit),
+      el("td", {}, inp("price", { inputMode: "decimal", style: "width:90px; text-align:right", attrs: { "aria-label": "Price" } })),
+      el("td", {}, el("div", { class: "row", style: "flex-wrap:nowrap; gap:6px" }, inp("group", { style: "width:110px", placeholder: "none", attrs: { "aria-label": "Size group" } }), size)),
+      el("td", { style: "min-width:260px" }, inp("aliases", { attrs: { "aria-label": "Customer words" } })),
+      el("td", {}, stockLbl),
+      el("td", {}, el("button", { class: "icon-btn", title: "Delete product", attrs: { "aria-label": "Delete " + s.name }, onclick: () => { PRICE.rows.splice(PRICE.rows.indexOf(s), 1); dirty(); renderPrices(); } }, icon("trash")))));
+  });
+  if (!shown.length) tb.append(el("tr", {}, el("td", { colSpan: 7 }, el("div", { class: "pop-empty", text: "No products match your search." }))));
+}
+$("skuSearch").oninput = renderPrices;
+$("addSku").onclick = () => {
+  PRICE.rows.unshift({ sku: "", _new: true, name: "", group: "", size: "", unit: "pack", price: "", in_stock: true, aliases: [] });
+  PRICE.dirty = true; $("saveBar").hidden = false; $("skuSearch").value = ""; renderPrices();
+  $("skuRows").querySelector("input")?.select();
+};
+$("discardSkus").onclick = () => { PRICE.dirty = false; $("saveBar").hidden = true; renderPrices(); };
+function slug(text) {
+  return (text || "").toLowerCase().normalize("NFKD").replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "item";
+}
+$("saveSkus").onclick = async () => {
+  const taken = new Set(PRICE.rows.filter(r => !r._new).map(r => r.sku));
+  for (const r of PRICE.rows) {
+    if (!r.name || !String(r.name).trim()) { toast("Every product needs a name", true); return; }
+    if (r._new) { let id = slug(r.name), n = 2; while (taken.has(id)) id = slug(r.name) + "-" + n++; r.sku = id; taken.add(id); }
+  }
+  const rows = PRICE.rows.map(({ _new, ...rest }) => rest);
+  try { const r = await api("/api/skus", rows); PRICE.dirty = false; $("saveBar").hidden = true; await loadSkus(); renderPrices(); toast(`Price list saved · ${r.count} products`); }
+  catch (e) { toast(e.message, true); }
+};
+$("csvFile").onchange = async (ev) => {
+  const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+  if (!confirm("Replace your whole price list with this CSV?")) return;
+  try { const r = await api("/api/skus/import", { text: await f.text() }); PRICE.dirty = false; $("saveBar").hidden = true; await loadSkus(); renderPrices(); toast(`Imported ${r.count} products`); }
+  catch (e) { toast(e.message, true); }
+};
+window.addEventListener("beforeunload", (e) => { if (PRICE.dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ---------- shop ---------- */
+const SHOP_KEYS = ["name", "phone", "address", "upi_id", "delivery_note"];
+const UPI_RE = /^[\w.\-]{2,256}@[A-Za-z][A-Za-z0-9]{1,63}$/;
+async function loadShop() { SHOP = await api("/api/shop"); SHOP_KEYS.forEach(k => $("s_" + k).value = SHOP[k] || ""); previewShop(); }
+function previewShop() {
+  const upi = $("s_upi_id").value.trim(); const bad = upi && !UPI_RE.test(upi);
+  $("s_upi_id").classList.toggle("invalid", bad);
+  $("upiHint").textContent = bad ? "That doesn't look like a UPI ID (it should look like name@bank)." : "Customers get a QR for the exact bill amount.";
+  $("upiHint").style.color = bad ? "var(--bad)" : "";
+  const name = $("s_name").value.trim() || "our shop";
+  $("replyPreview").textContent = ["Namaste Rahul ji!", `Your order #12 from ${name}:`, "• Wheat Atta (loose) – 2 kg – ₹84", "• Eggs – 6 pc – ₹42", "*Total: ₹126*",
+    upi ? `Pay by UPI: ${upi}` : null, $("s_delivery_note").value.trim() || null, "Dhanyavaad 🙏"].filter(Boolean).join("\n");
+}
+SHOP_KEYS.forEach(k => $("s_" + k).addEventListener("input", previewShop));
+$("saveShop").onclick = async () => {
+  const upi = $("s_upi_id").value.trim();
+  if (upi && !UPI_RE.test(upi)) { toast("Fix the UPI ID first", true); return; }
+  try { SHOP = await api("/api/shop", Object.fromEntries(SHOP_KEYS.map(k => [k, $("s_" + k).value]))); toast("Shop settings saved"); }
+  catch (e) { toast(e.message, true); }
+};
+
+/* ---------- start ---------- */
+go("order"); renderBill();
+loadSkus(); loadCustomers(); refreshOpenCount(); checkModel();
+</script>
+</body>
+</html>
